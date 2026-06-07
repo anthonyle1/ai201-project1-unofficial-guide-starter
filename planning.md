@@ -82,11 +82,11 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
 
 | # | Question | Expected answer |
 |---|---------------------------------------------------------------|-----------------|
-| 1 | What are some cons of living on-campus for freshman students? | |
-| 2 | What are some pros of living on campus for students? | |
-| 3 | Can you list some of the available dorms on campus? | |
-| 4 | Can you list some off-campus apartment complexes? | |
-| 5 | What are some of the benefits of living at Murphree Hall? | |
+| 1 | What are some cons of living on-campus? | Limited parking, not guarunteed for freshman students, limited cooking ability |
+| 2 | What are some pros of living on campus? | Proximity to classes and club events, being able to connect with people better, which is best for freshman students. |
+| 3 | Can you list all of the available on campus dorms? | Lists all options of on-campus housing. |
+| 4 | Can you list some off-campus apartment complexes? | Lists a few options of available apartment complexes (ex. Enclave, University Club, The Standard, etc.) |
+| 5 | What are some of the benefits of living at Murphree Hall? | Proximity to Midtown, Gym, Pretty area + architecture, etc. |
 
 ---
 

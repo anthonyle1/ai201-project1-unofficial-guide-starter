@@ -100,11 +100,19 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | | | | | |
-| 2 | | | | | |
-| 3 | | | | | |
-| 4 | | | | | |
-| 5 | | | | | |
+| 1 | What are some cons of living on-campus? |Limited parking, not guarunteed for freshman students, limited cooking ability | On-campus dorm living has several drawbacks, including limited privacy and shared living spaces. Housing is not always guaranteed, so students may need a backup plan. It can also be more expensive, with additional concerns like parking difficulties and limited cooking options compared to off-campus housing, where students may have more flexibility and amenities like private kitchens.| Relevant | Accurate |
+| 2 | What are some pros of living on campus? | Proximity to classes and club events, being able to connect with people better, which is best for freshman students. | Living on campus offers convenience and a strong college experience, including easy access to classes and campus events, a close view of athletics and tailgates, and built-in campus security. It is also often more affordable than off-campus housing and provides a more traditional social college environment.
+
+Source: Swamp Rentals Off-Campus vs Dorm
+| Relevant | Accurate |
+| 3 | Can you list all of the available on campus dorms | Lists all of the available dorms on capmus | Not enough provided data to list. Only lists Yulee and Keys. | Partially relevant | Partially Accurate |
+| 4 | Can you list some off-campus apartment complexes? | Lists some available apartment complexes in Gainesville, FL | 1. Canopy
+2. The Woodlands
+3. University Club
+4. University Common
+5. College Park 
+6. Off Campus Life Website | Partially Relevant | Accurate |
+| 5 | What are some of the benefits of living at Murphree Hall? | Proximity to Midtown, Gym, Pretty area + architecture, etc. | Murphree Hall offers several benefits, including quieter living conditions due to thick walls, strong community engagement through events and shared spaces like lounges, and a convenient location with scenic surroundings and bike-friendly terrain. It also provides relatively spacious rooms, less crowded communal bathrooms, good air conditioning, cleanliness, and close access to the gym. | Relevant | Partially Accurate |
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -125,13 +133,16 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
      results from an unrelated review" is an explanation. -->
 
 **Question that failed:**
+Can you list all of the available on campus dorms?
 
 **What the system returned:**
+I don't have enough information on that. The provided documents only mention a few specific dorms, such as Yulee Hall and Keys, but do not provide a comprehensive list of all available on-campus dorms at the University of Florida.
 
 **Root cause (tied to a specific pipeline stage):**
+Questions was fairly specific. Poor chunking so data that includes all of the relevant dorms on campus are split between individual pages. There isn't anywhere in the data that had all of the possible dorms on campus in one area. 
 
 **What you would change to fix it:**
-
+Add the chunk manually through adding a JSON file with all of the relevant dorms on campus. Increase chunk size and increase the amount of chunks given to the LLM.
 ---
 
 ## Spec Reflection
@@ -140,9 +151,10 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
      Answer both questions with at least 2–3 sentences each. -->
 
 **One way the spec helped you during implementation:**
+The spec provided a lot of things to look for in the output of each milestone! I used it to ensure I was on the right track between milestones. 
 
 **One way your implementation diverged from the spec, and why:**
-
+Creating seperate chunking methods for JSON and HTML files. I ended up doing this to ensure comments's content, which are typically very short, are containted with each other and do not interfere with others. 
 ---
 
 ## AI Usage
@@ -158,12 +170,12 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
 
 **Instance 1**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* I asked AI to generate the chunking functions based on the structure of how I formatted the data in my ingestion functions. 
+- *What it produced:* Chunking functions which provided a fixed-size approach to chunking data. 
+- *What I changed or overrode:* I changed the chunk size from 500 to 100 after testing and adjusted metadata to not be a random uuid() and be a better name based on the source for later debugging. I also edited the prompt to additionally account for reddit comments, which are typically short. I edited the prompt to account to differentiate, but also unite the metadata titles of the reddit posts and individual comments. 
 
 **Instance 2**
 
-- *What I gave the AI:*
-- *What it produced:*
-- *What I changed or overrode:*
+- *What I gave the AI:* I asked AI to help connect my functions from retriever.py to app.py (the Gradle UI).
+- *What it produced:* retriever.py connections to Groq, then to the Gradle UI from the project spec.
+- *What I changed or overrode:* I changed the way sources are generated in the code to better attribute the individual resources by creating a set in retriever.py, as initally the code provided the whole query instead of individual sources. I also made changes to the prompt to help ensure relevant data from the knowledge base is used. 
