@@ -175,6 +175,7 @@ def build_prompt(question):
 
 **How source attribution is surfaced in the response:**
 The sources used for each chunk are saved when retrieving the chunks alongside the source text. Afterward, the related texts fill the "retrived from:" section on the Gradle UI. 
+
 ---
 
 ## Evaluation Report
@@ -232,8 +233,8 @@ Add the chunk manually through adding a JSON file with all of the relevant dorms
 The spec provided a lot of things to look for in the output of each milestone! I used it to ensure I was on the right track between milestones. 
 
 **One way your implementation diverged from the spec, and why:**
-
 Creating seperate chunking methods for JSON and HTML files. I ended up doing this to ensure comments's content, which are typically very short, are containted with each other and do not interfere with others. 
+
 ---
 
 ## AI Usage
