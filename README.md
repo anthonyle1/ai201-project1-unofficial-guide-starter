@@ -174,7 +174,8 @@ def build_prompt(question):
 ```
 
 **How source attribution is surfaced in the response:**
-The sources used for each chunk are saved when retrieving the chunks alongside the source text. Afterward, the related texts fill the "retrived from:" section on the Gradle UI. 
+The sources used for each chunk are saved when retrieving the chunks alongside the source text. Afterward, the related texts fill the "retrived from:" section on the Gradle UI.
+Additionally, the prompt includes "Additionally, cite the source(s) used to help generate the response", which tells the Groq client/LLM to ensure facts are cited with relevant sources found in the metadata of each chunk. 
 
 ---
 
@@ -217,11 +218,11 @@ Can you list all of the available on campus dorms?
 I don't have enough information on that. The provided documents only mention a few specific dorms, such as Yulee Hall and Keys, but do not provide a comprehensive list of all available on-campus dorms at the University of Florida.
 
 **Root cause (tied to a specific pipeline stage):**
-Questions was fairly specific. Poor chunking so data that includes all of the relevant dorms on campus are split between individual pages. There isn't anywhere in the data that had all of the possible dorms on campus in one area. 
+Questions was fairly specific. Poor chunking so data that includes all of the relevant dorms on campus are split between individual pages. There isn't anywhere in the data that had all of the possible dorms on campus in one area. The output also exists in part to the guardrails written into the prompt given to the Groq client. 
 
 **What you would change to fix it:**
 
-Add the chunk manually through adding a JSON file with all of the relevant dorms on campus. Increase chunk size and increase the amount of chunks given to the LLM.
+I would add another document which listed all of the relevant dorms on campus in a more central chunk. Then I would add the chunk to the ChromaDB vector database. Other options include increasing the chunk size and increase the amount of chunks retrived then given to the LLM.
 
 ---
 
@@ -231,7 +232,7 @@ Add the chunk manually through adding a JSON file with all of the relevant dorms
      Answer both questions with at least 2–3 sentences each. -->
 
 **One way the spec helped you during implementation:**
-The spec provided a lot of things to look for in the output of each milestone! I used it to ensure I was on the right track between milestones. 
+The spec provided a lot of things to look for in the output of each milestone! It provided insights to how to do the project, in regards to how chunks look like, how to ask questions, and what to look for when verifying my code. I used it to ensure I was on the right track between milestones. 
 
 **One way your implementation diverged from the spec, and why:**
 Creating seperate chunking methods for JSON and HTML files. I ended up doing this to ensure comments's content, which are typically very short, are containted with each other and do not interfere with others. 
@@ -253,10 +254,10 @@ Creating seperate chunking methods for JSON and HTML files. I ended up doing thi
 
 - *What I gave the AI:* I asked AI to generate the chunking functions based on the structure of how I formatted the data in my ingestion functions. 
 - *What it produced:* Chunking functions which provided a fixed-size approach to chunking data. 
-- *What I changed or overrode:* I changed the chunk size from 500 to 100 after testing and adjusted metadata to not be a random uuid() and be a better name based on the source for later debugging. I also edited the prompt to additionally account for reddit comments, which are typically short. I edited the prompt to account to differentiate, but also unite the metadata titles of the reddit posts and individual comments. 
+- *What I changed or overrode:* I changed the chunk size from 500 to 1,000 after testing and adjusted metadata to not be a random uuid() and be a better name based on the source for later debugging. I also edited the prompt to additionally account for reddit comments, which are typically short. I edited the prompt to account to differentiate, but also unite the metadata titles of the reddit posts and individual comments. 
 
 **Instance 2**
 
 - *What I gave the AI:* I asked AI to help connect my functions from retriever.py to app.py (the Gradle UI).
-- *What it produced:* retriever.py connections to Groq, then to the Gradle UI from the project spec.
-- *What I changed or overrode:* I changed the way sources are generated in the code to better attribute the individual resources by creating a set in retriever.py, as initally the code provided the whole query instead of individual sources. I also made changes to the prompt to help ensure relevant data from the knowledge base is used. 
+- *What it produced:* AI wrote the connection between retriever.py functions and the LLM hosted on the Groq client. Afterward, the results after querying Groq and other relevant data was inputted to the Gradle UI from the project spec.
+- *What I changed or overrode:* I changed the way sources are generated in the code to better attribute the individual resources by creating a set in retriever.py, as initally the code provided the whole query instead of individual sources. I also made changes to the prompt to help ensure relevant data from the knowledge base is used. Additionally, I made some changes to the Gradle UI to better display information for the video demo. 
