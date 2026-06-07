@@ -60,6 +60,7 @@ Chunk size varies depending on the type of document. Since we are working with b
 **Final chunk count:** 510
 
 **Sample Chunks**
+```
 ================================================================================
 QUERY: What are some of the differences between living on and off campus at UF?
 ================================================================================
@@ -130,7 +131,7 @@ of a communal study place. It was a fun place to do work.âIf youâre looking fo
 Washers and dryers are located at the bottom floor of the building.
 Jennings Hall construc
 --------------------------------------------------------------------------------
-
+```
 ---
 
 ## Embedding Model
@@ -184,19 +185,11 @@ The sources used for each chunk are saved when retrieving the chunks alongside t
 
 | # | Question | Expected answer | System response (summarized) | Retrieval quality | Response accuracy |
 |---|----------|-----------------|------------------------------|-------------------|-------------------|
-| 1 | What are some cons of living on-campus? |Limited parking, not guarunteed for freshman students, limited cooking ability | On-campus dorm living has several drawbacks, including limited privacy and shared living spaces. Housing is not always guaranteed, so students may need a backup plan. It can also be more expensive, with additional concerns like parking difficulties and limited cooking options compared to off-campus housing, where students may have more flexibility and amenities like private kitchens.| Relevant | Accurate |
-| 2 | What are some pros of living on campus? | Proximity to classes and club events, being able to connect with people better, which is best for freshman students. | Living on campus offers convenience and a strong college experience, including easy access to classes and campus events, a close view of athletics and tailgates, and built-in campus security. It is also often more affordable than off-campus housing and provides a more traditional social college environment.
-
-Source: Swamp Rentals Off-Campus vs Dorm
-| Relevant | Accurate |
-| 3 | Can you list all of the available on campus dorms | Lists all of the available dorms on capmus | Not enough provided data to list. Only lists Yulee and Keys. | Partially relevant | Partially Accurate |
-| 4 | Can you list some off-campus apartment complexes? | Lists some available apartment complexes in Gainesville, FL | 1. Canopy
-2. The Woodlands
-3. University Club
-4. University Common
-5. College Park 
-6. Off Campus Life Website | Partially Relevant | Accurate |
-| 5 | What are some of the benefits of living at Murphree Hall? | Proximity to Midtown, Gym, Pretty area + architecture, etc. | Murphree Hall offers several benefits, including quieter living conditions due to thick walls, strong community engagement through events and shared spaces like lounges, and a convenient location with scenic surroundings and bike-friendly terrain. It also provides relatively spacious rooms, less crowded communal bathrooms, good air conditioning, cleanliness, and close access to the gym. | Relevant | Partially Accurate |
+| 1 | What are some cons of living on-campus? | Limited parking, not guaranteed for freshman students, limited cooking ability | On-campus dorm living has several drawbacks, including limited privacy and shared living spaces. Housing is not always guaranteed, so students may need a backup plan. It can also be more expensive, with additional concerns like parking difficulties and limited cooking options compared to off-campus housing, where students may have more flexibility and amenities like private kitchens. | Relevant | Accurate |
+| 2 | What are some pros of living on campus? | Proximity to classes and club events, ability to connect with people more easily; often ideal for freshman students | Living on campus offers convenience and a strong college experience, including easy access to classes and campus events, proximity to athletics and tailgates, and built-in campus security. It also supports social connection and a more traditional college environment. Source: Swamp Rentals Off-Campus vs Dorm | Relevant | Accurate |
+| 3 | Can you list all of the available on-campus dorms? | List all available dorms on campus | Not enough provided data to list all dorms. Only partial list available (e.g., Yulee and Keys). | Partially relevant | Partially accurate |
+| 4 | Can you list some off-campus apartment complexes? | List of available apartment complexes in Gainesville, FL | 1. Canopy<br>2. The Woodlands<br>3. University Club<br>4. University Common<br>5. College Park<br>6. Off Campus Life Website | Partially relevant | Accurate |
+| 5 | What are some of the benefits of living at Murphree Hall? | Proximity to Midtown, gym access, aesthetic/architecture, community feel, etc. | Murphree Hall offers several benefits, including quieter living conditions due to thick walls, strong community engagement through events and shared spaces like lounges, and a convenient location with scenic surroundings. It also provides relatively spacious rooms, less crowded communal bathrooms, good air conditioning, cleanliness, and close access to the gym. | Relevant | Partially accurate |
 
 **Retrieval quality:** Relevant / Partially relevant / Off-target  
 **Response accuracy:** Accurate / Partially accurate / Inaccurate
@@ -226,6 +219,7 @@ I don't have enough information on that. The provided documents only mention a f
 Questions was fairly specific. Poor chunking so data that includes all of the relevant dorms on campus are split between individual pages. There isn't anywhere in the data that had all of the possible dorms on campus in one area. 
 
 **What you would change to fix it:**
+
 Add the chunk manually through adding a JSON file with all of the relevant dorms on campus. Increase chunk size and increase the amount of chunks given to the LLM.
 ---
 
@@ -238,6 +232,7 @@ Add the chunk manually through adding a JSON file with all of the relevant dorms
 The spec provided a lot of things to look for in the output of each milestone! I used it to ensure I was on the right track between milestones. 
 
 **One way your implementation diverged from the spec, and why:**
+
 Creating seperate chunking methods for JSON and HTML files. I ended up doing this to ensure comments's content, which are typically very short, are containted with each other and do not interfere with others. 
 ---
 
