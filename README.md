@@ -165,7 +165,7 @@ I used the following from the project the specification: "Answer the question us
 ```python
 def build_prompt(question):
     return f"""
-        Answer the question using only the information in the provided documents. If the documents don't contain enough information to answer, say 'I don't have enough information on that
+        Answer the question using only the information in the provided documents. If the documents don't contain enough information to answer, say 'I don't have enough information on that. Additionally, cite the source(s) used to help generate the response.
         
         {question}
 
