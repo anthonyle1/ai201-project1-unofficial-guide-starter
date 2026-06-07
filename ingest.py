@@ -1,10 +1,13 @@
 import json
+import uuid
 import requests
-from bs4 import BeautifulSoup
-from pathlib import Path
 
-# parse already installed json files from reddit 
-def load_reddit_json(filepath: str):
+from pathlib import Path
+from bs4 import BeautifulSoup
+
+# load json files downloaded from reddit 
+def load_reddit_json(filepath: Path):
+
     with open(filepath, "r", encoding="utf-8") as f:
         data = json.load(f)
 
@@ -13,8 +16,8 @@ def load_reddit_json(filepath: str):
     post = data[0]["data"]["children"][0]["data"]
 
     documents.append({
-        "source": filepath,
-        "source_type": "post",
+        "source": str(filepath),
+        "source_type": "reddit_post",
         "author": post.get("author"),
         "title": post.get("title"),
         "text": post.get("selftext", "")
@@ -22,16 +25,16 @@ def load_reddit_json(filepath: str):
 
     def parse_comments(comment_list):
         comments = []
-
         for comment in comment_list:
 
-            if comment["kind"] != "t1":
+            if comment.get("kind") != "t1":
                 continue
 
             c = comment["data"]
 
             comments.append({
-                "source_type": "comment",
+                "source": str(filepath),
+                "source_type": "reddit_comment",
                 "author": c.get("author"),
                 "text": c.get("body", "")
             })
@@ -44,7 +47,6 @@ def load_reddit_json(filepath: str):
                         replies["data"]["children"]
                     )
                 )
-
         return comments
 
     documents.extend(
@@ -52,81 +54,190 @@ def load_reddit_json(filepath: str):
             data[1]["data"]["children"]
         )
     )
-    # print(json.dumps(documents, indent=4))
 
     return documents
 
-# pulls all text from website, concern about hallucinating + feeding unrelevant data to llm but maybe
-# this is good enough
+# load non-reddit json files (html page documents)
 def load_html(url):
-    response = requests.get(url, headers={"User-Agent": "Mozilla/5.0"})
-    soup = BeautifulSoup(response.text, "html.parser")
+    response = requests.get(
+        url,
+        headers={"User-Agent": "Mozilla/5.0"},
+        timeout=10
+    )
 
-    for tag in soup(["script", "style", "nav", "footer"]):
+    response.raise_for_status()
+
+    soup = BeautifulSoup(
+        response.text,
+        "html.parser"
+    )
+
+    for tag in soup([
+        "script", "style", "nav", "footer", "header", "aside"
+    ]):
         tag.decompose()
 
-    text = soup.get_text(separator="\n", strip=True)
-    
-    # print(text)
+    text = soup.get_text(
+        separator="\n",
+        strip=True
+    )
 
-    return {
+    return [{
         "source": url,
+        "source_type": "webpage",
         "text": text
-    }
+    }]
 
-# wrapper function to encompass all documents
+# wrapper to load everything at once
 def load_documents():
+
     documents = []
-    # loading downlowded reddit pages
-    folder = Path("documents/reddit")
-    json_files = [file.name for file in folder.glob("*.json")]
-    
-    for json_path in json_files:
-        documents.append(load_reddit_json("documents/reddit/"+json_path))
 
-    # loading swamprentals
-    documents.append(load_html("https://www.swamprentals.com/help-finding-apartments/off-campus-vs-dorm"))
-    
-    # loading ratemydorm
-    documents.append(load_html("https://www.ratemydorm.com/ranking-dorms/university-of-florida"))
+    reddit_folder = Path("documents/reddit")
 
-    # loading the alligator
-    documents.append(load_html("https://residencehalls.alligator.org/#beaty"))
-    documents.append(load_html("https://residencehalls.alligator.org/#beaty"))
-    documents.append(load_html("https://residencehalls.alligator.org/#yulee"))
-    documents.append(load_html("https://residencehalls.alligator.org/#cypress"))
-    documents.append(load_html("https://residencehalls.alligator.org/#reid"))
-    documents.append(load_html("https://residencehalls.alligator.org/#mallory"))
-    documents.append(load_html("https://residencehalls.alligator.org/#broward"))
-    documents.append(load_html("https://residencehalls.alligator.org/#rawlings"))
-    documents.append(load_html("https://residencehalls.alligator.org/#infinity"))
-    documents.append(load_html("https://residencehalls.alligator.org/#murphree"))
-    documents.append(load_html("https://residencehalls.alligator.org/#buckman"))
-    documents.append(load_html("https://residencehalls.alligator.org/#fletcher"))
-    documents.append(load_html("https://residencehalls.alligator.org/#sledd"))
-    documents.append(load_html("https://residencehalls.alligator.org/#thomas"))
-    documents.append(load_html("https://residencehalls.alligator.org/#tolbert"))
-    documents.append(load_html("https://residencehalls.alligator.org/#weaver"))
-    documents.append(load_html("https://residencehalls.alligator.org/#east"))
-    documents.append(load_html("https://residencehalls.alligator.org/#riker"))
-    documents.append(load_html("https://residencehalls.alligator.org/#north"))
-    documents.append(load_html("https://residencehalls.alligator.org/#graham"))
-    documents.append(load_html("https://residencehalls.alligator.org/#simpson"))
-    documents.append(load_html("https://residencehalls.alligator.org/#trusler"))
-    documents.append(load_html("https://residencehalls.alligator.org/#keys"))
-    documents.append(load_html("https://residencehalls.alligator.org/#springs"))
-    documents.append(load_html("https://residencehalls.alligator.org/#lakeside"))
-    documents.append(load_html("https://residencehalls.alligator.org/#hume"))
+    for json_file in reddit_folder.glob("*.json"):
+        documents.extend(
+            load_reddit_json(json_file)
+        )
+
+    documents.extend(
+        load_html(
+            "https://www.swamprentals.com/help-finding-apartments/off-campus-vs-dorm"
+        )
+    )
+
+    documents.extend(
+        load_html(
+            "https://www.ratemydorm.com/ranking-dorms/university-of-florida"
+        )
+    )
+
+    documents.extend(
+        load_html(
+            "https://residencehalls.alligator.org"
+        )
+    )
 
     return documents
+
+
+def generate_chunks(
+    text,
+    doc,
+    chunk_size=1000,
+    overlap=200,
+    min_length=50
+):
+
+    chunks = []
+    start = 0
+
+    while start < len(text):
+        end = start + chunk_size
+        chunk_text = text[start:end].strip()
+
+        if len(chunk_text) >= min_length:
+            chunks.append({
+                "chunk_id": str(uuid.uuid4()), # utilize uuid for unique ids for chromadb
+                "text": chunk_text,
+                "source": doc["source"],
+                "source_type": doc["source_type"],
+                "author": doc.get("author"),
+                "title": doc.get("title")
+            })
+
+        start += chunk_size - overlap
+    return chunks
+
+# wrapper function for chunks
+def chunk_document(doc):
+    source_type = doc["source_type"]
+
+    # utilize fixed chunking for reddit related espec comments since they're already short
+    if source_type == "reddit_comment":
+
+        text = (
+            f"Comment by {doc.get('author', 'unknown')}\n\n"
+            f"{doc.get('text', '')}"
+        ).strip()
+
+        if len(text) >= 1200:
+            return generate_chunks(
+                text,
+                doc,
+                chunk_size=1000,
+                overlap=200
+            )
+        else: 
+            return [{
+                "chunk_id": str(uuid.uuid4()),
+                "text": text,
+                "source": doc["source"],
+                "source_type": source_type,
+                "author": doc.get("author"),
+                "title": None
+            }]
+        
+    elif source_type == "reddit_post":
+
+        text = (
+            f"Title: {doc.get('title', '')}\n"
+            f"Author: {doc.get('author', '')}\n\n"
+            f"{doc.get('text', '')}"
+        )
+
+        # Keep short posts intact
+        if len(text) < 1000:
+            return [{
+                "chunk_id": str(uuid.uuid4()),
+                "text": text,
+                "source": doc["source"],
+                "source_type": source_type,
+                "author": doc.get("author"),
+                "title": doc.get("title")
+            }]
+
+        return generate_chunks(
+            text,
+            doc
+        )
+
+    else:
+        return generate_chunks(
+            doc["text"],
+            doc
+        )
 
 def ingest():
     documents = load_documents()
-    print(f"loaded {len(documents)} documents.")
-    return
+    print(f"Loaded {len(documents)} documents.")
+
+    all_chunks = []
+
+    for doc in documents:
+        all_chunks.extend(
+            chunk_document(doc)
+        )
+
+    print(f"Generated {len(all_chunks)} chunks.")
+
+    return all_chunks
 
 def main():
-    ingest()
+    chunks = ingest()
+    print("\nFirst 5 chunks:\n")
+
+    for chunk in chunks[:5]:
+        print("=" * 80)
+        print(f"ID: {chunk['chunk_id']}")
+        print(f"TYPE: {chunk['source_type']}")
+        print(f"SOURCE: {chunk['source']}")
+        print()
+
+        preview = chunk["text"][:400]
+
+        print(preview)
+        print()
 
 if __name__ == "__main__":
     main()

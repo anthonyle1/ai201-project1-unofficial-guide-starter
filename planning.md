@@ -45,10 +45,15 @@ Thousands of students at the University of Florida need somewhere to live that f
      A review-heavy corpus warrants different chunking than a long FAQ. -->
 
 **Chunk size:**
+1000 characters.
 
 **Overlap:**
+200 characters
 
 **Reasoning:**
+
+Chunk size varies depending on the type of document. Since we are working with both shorter reddit posts and comments with complete thoughts and longer blog-style posts, it would be better to chunk these differently to help our program to ensure context within a chunk is best-fit.
+
 
 ---
 
