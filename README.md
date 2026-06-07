@@ -222,6 +222,7 @@ Questions was fairly specific. Poor chunking so data that includes all of the re
 **What you would change to fix it:**
 
 Add the chunk manually through adding a JSON file with all of the relevant dorms on campus. Increase chunk size and increase the amount of chunks given to the LLM.
+
 ---
 
 ## Spec Reflection
