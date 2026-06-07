@@ -142,4 +142,4 @@ def load_vector_db():
 
 if __name__ == "__main__":
     load_vector_db()
-    print(evaluate("What are the most popular off-campus housing options for students?"))
+    print_results("What are the negatives of living at Jennings Hall?")

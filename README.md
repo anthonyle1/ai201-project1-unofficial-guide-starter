@@ -59,6 +59,78 @@ Chunk size varies depending on the type of document. Since we are working with b
 
 **Final chunk count:** 510
 
+**Sample Chunks**
+================================================================================
+QUERY: What are some of the differences between living on and off campus at UF?
+================================================================================
+
+Rank #1
+Source: documents\reddit\should_freshmen_live_on_or_off_campus.json
+Chunk Position: should_freshmen_live_on_or_off_campus_reddit_comment_14
+Distance: 0.5996
+
+Chunk:
+Post Title: Should freshmen live on or off campus?
+Comment by [deleted]
+
+hey, there’s pros and cons to both. you can reach out to the off campus life office to learn about it! the directors do one on one meetings to answer all of your questions and go through options with u
+--------------------------------------------------------------------------------
+
+Rank #2
+Source: documents\reddit\should_freshmen_live_on_or_off_campus.json
+Chunk Position: should_freshmen_live_on_or_off_campus_reddit_comment_4
+Distance: 0.6507
+
+Chunk:
+Post Title: Should freshmen live on or off campus?
+Comment by TraderGIJoe
+
+Search on this sub. 
+
+There are new students like transfers who have had trouble making friends isolated off campus.
+
+Get the full college experience, if possible!
+--------------------------------------------------------------------------------
+
+Rank #3
+Source: documents\reddit\should_freshmen_live_on_or_off_campus.json
+Chunk Position: should_freshmen_live_on_or_off_campus_reddit_post_0
+Distance: 0.6546
+
+Chunk:
+Title: Should freshmen live on or off campus?
+Author: jjjjn240
+
+I want to get an idea on whether it’s better to live on or off campus as a freshman, both socially and economically.
+--------------------------------------------------------------------------------
+
+Rank #4
+Source: documents\reddit\should_freshmen_live_on_or_off_campus.json
+Chunk Position: should_freshmen_live_on_or_off_campus_reddit_comment_16
+Distance: 0.6573
+
+Chunk:
+Post Title: Should freshmen live on or off campus?
+Comment by Little-Pace2622
+
+As a freshman living off-campus, I feel like the whole “being on-campus is better for socialization” can be supplemented if you’re heavily involved with the student orgs! While it is harder to involve myself with other freshman since I’m off-campus, I still prefer the ability to have my own room and kitchen over being in the dorms.
+--------------------------------------------------------------------------------
+
+================================================================================
+QUERY: What are the negatives of living at Jennings Hall?
+================================================================================
+
+Rank #1
+Source: https://residencehalls.alligator.org
+Chunk Position: residencehalls_alligator_org_webpage_11
+Distance: 0.9143
+
+Chunk:
+of a communal study place. It was a fun place to do work.âIf youâre looking for the communal dorm experience, definitely be in Jennings,âIt was absolutely perfect, and I would choose it all over again.âI think it has a nice common space that people get to hang out in,âI never had any problems with bugs, rodents or anything,âIt's further from food and things to do,âYou either have to convert your beds into these weird bunk beds that aren't actually bunk beds or sleep so close to each other that you could hold hands every night,âs housing website.
+Washers and dryers are located at the bottom floor of the building.
+Jennings Hall construc
+--------------------------------------------------------------------------------
+
 ---
 
 ## Embedding Model
@@ -87,9 +159,21 @@ Increasing the top-k can provide more context to the LLMs, as you provide more c
      the mechanism. -->
 
 **System prompt grounding instruction:**
+I used the following from the project the specification: "Answer the question using only the information in the provided documents. If the documents don't contain enough information to answer, say 'I don't have enough information on that" After, I added on the question and related chunks to the prompt before prompting the LLM.
+
+```python
+def build_prompt(question):
+    return f"""
+        Answer the question using only the information in the provided documents. If the documents don't contain enough information to answer, say 'I don't have enough information on that
+        
+        {question}
+
+        Answer:
+        """
+```
 
 **How source attribution is surfaced in the response:**
-
+The sources used for each chunk are saved when retrieving the chunks alongside the source text. Afterward, the related texts fill the "retrived from:" section on the Gradle UI. 
 ---
 
 ## Evaluation Report
