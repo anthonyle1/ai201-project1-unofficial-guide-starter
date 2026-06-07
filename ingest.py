@@ -1,9 +1,18 @@
 import json
-import uuid
+import re
 import requests
 
 from pathlib import Path
 from bs4 import BeautifulSoup
+
+# turn a filepath/URL source into a short, ID-safe slug
+def slugify_source(source: str) -> str:
+    if source.endswith(".json"):
+        slug = Path(source).stem            # documents/reddit/foo.json -> foo
+    else:
+        slug = re.sub(r"^https?://", "", source).split("/")[0]   # domain only
+        slug = slug.replace("www.", "")
+    return re.sub(r"[^a-z0-9]+", "_", slug.lower()).strip("_")
 
 # load json files downloaded from reddit 
 def load_reddit_json(filepath: Path):
@@ -36,7 +45,8 @@ def load_reddit_json(filepath: Path):
                 "source": str(filepath),
                 "source_type": "reddit_comment",
                 "author": c.get("author"),
-                "text": c.get("body", "")
+                "text": c.get("body", ""),
+                "title": post.get("title", "")
             })
 
             replies = c.get("replies")
@@ -138,7 +148,6 @@ def generate_chunks(
 
         if len(chunk_text) >= min_length:
             chunks.append({
-                "chunk_id": str(uuid.uuid4()), # utilize uuid for unique ids for chromadb
                 "text": chunk_text,
                 "source": doc["source"],
                 "source_type": doc["source_type"],
@@ -157,9 +166,15 @@ def chunk_document(doc):
     if source_type == "reddit_comment":
 
         text = (
+            f"Post Title: {doc.get('title', '')}\n"
             f"Comment by {doc.get('author', 'unknown')}\n\n"
             f"{doc.get('text', '')}"
         ).strip()
+
+        # eliminate short comments that do not provide context for embedding model
+        body = doc.get("text", "").strip()
+        if len(body) < 80:
+            return []
 
         if len(text) >= 1200:
             return generate_chunks(
@@ -168,9 +183,8 @@ def chunk_document(doc):
                 chunk_size=1000,
                 overlap=200
             )
-        else: 
+        else:
             return [{
-                "chunk_id": str(uuid.uuid4()),
                 "text": text,
                 "source": doc["source"],
                 "source_type": source_type,
@@ -189,7 +203,6 @@ def chunk_document(doc):
         # Keep short posts intact
         if len(text) < 1000:
             return [{
-                "chunk_id": str(uuid.uuid4()),
                 "text": text,
                 "source": doc["source"],
                 "source_type": source_type,
@@ -205,7 +218,9 @@ def chunk_document(doc):
     else:
         return generate_chunks(
             doc["text"],
-            doc
+            doc,
+            chunk_size=500,
+            overlap=100
         )
 
 def ingest():
@@ -219,6 +234,15 @@ def ingest():
             chunk_document(doc)
         )
 
+    # assign ids in the format <source>_<type>_<number>
+    counters = {}
+    for chunk in all_chunks:
+        slug = slugify_source(chunk["source"])
+        key = (slug, chunk["source_type"])
+        n = counters.get(key, 0)
+        chunk["chunk_id"] = f"{slug}_{chunk['source_type']}_{n}"
+        counters[key] = n + 1
+
     print(f"Generated {len(all_chunks)} chunks.")
 
     return all_chunks
@@ -227,7 +251,7 @@ def main():
     chunks = ingest()
     print("\nFirst 5 chunks:\n")
 
-    for chunk in chunks[:5]:
+    for chunk in chunks:
         print("=" * 80)
         print(f"ID: {chunk['chunk_id']}")
         print(f"TYPE: {chunk['source_type']}")

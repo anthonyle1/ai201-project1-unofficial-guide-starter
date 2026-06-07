@@ -66,9 +66,9 @@ Chunk size varies depending on the type of document. Since we are working with b
      support, accuracy on domain-specific text, latency? -->
 
 **Embedding model:**
-
+all-MiniLM-L6-v2
 **Top-k:**
-
+4
 **Production tradeoff reflection:**
 
 ---
