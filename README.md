@@ -50,13 +50,14 @@ Thousands of students at the University of Florida need somewhere to live that f
      - Any preprocessing you did before chunking (e.g., stripping HTML, removing headers)
      - What your final chunk count was across all documents -->
 
-**Chunk size:**
+**Chunk size:** 1000
 
-**Overlap:**
+**Overlap:** 200
 
 **Why these choices fit your documents:**
+Chunk size varies depending on the type of document. Since we are working with both shorter reddit posts and comments with complete thoughts and longer blog-style posts, it would be better to chunk these differently to help our program to ensure context within a chunk is best-fit.
 
-**Final chunk count:**
+**Final chunk count:** 510
 
 ---
 
@@ -69,8 +70,10 @@ Thousands of students at the University of Florida need somewhere to live that f
      latency, and local vs. API-hosted. -->
 
 **Model used:**
+all-MiniLM-L6-v2
 
 **Production tradeoff reflection:**
+Increasing the top-k can provide more context to the LLMs, as you provide more chunks for the LLMs at the cost of increasing the number of tokens used. The LLM we use allow for different context lengths, which helps inform how much of the "top-k" we can use or even increasing the chunk size to help better give context to LLM queries. Additionally, the type of LLM we use have other constraints, such as what written languages are supported (English, Spanish, Chinese, etc.). Providing more context could also bring more accurate content for domain-specific text.
 
 ---
 

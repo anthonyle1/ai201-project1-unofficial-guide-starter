@@ -105,6 +105,11 @@ def evaluate(question):
 
     context_parts = []
 
+    source = set()
+
+    for m in metas:
+        source.add(m['source'])
+
     for doc, meta in zip(docs, metas):
         context_parts.append(
             f"""
@@ -124,7 +129,7 @@ Source: {meta['source']}
 
 
 """
-    return prompt
+    return {"prompt":prompt, "source":source}
 
 def load_vector_db():
     print("Loading chunks...")

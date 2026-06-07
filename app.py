@@ -11,17 +11,18 @@ client = Groq(
 )
 
 def build_prompt(question):
-
     return f"""
         Answer the question using only the information in the provided documents. If the documents don't contain enough information to answer, say 'I don't have enough information on that
         
-        {retriever.evaluate(question)}
+        {question}
 
         Answer:
         """
 
 def ask(question):
-    retrieved_docs = build_prompt(question)
+    
+    ret = retriever.evaluate(question)
+    retrieved_docs = build_prompt(ret["prompt"])
     
     prompt = f"""
     
@@ -44,7 +45,7 @@ def ask(question):
 
     return {
         "answer": response.choices[0].message.content,
-        "sources": retrieved_docs  # Assuming this is a list of strings/filenames
+        "sources": ret["source"]  # Assuming this is a list of strings/filenames
     }
 
 def handle_query(question):

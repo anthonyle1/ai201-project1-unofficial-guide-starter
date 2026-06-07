@@ -54,7 +54,6 @@ Thousands of students at the University of Florida need somewhere to live that f
 
 Chunk size varies depending on the type of document. Since we are working with both shorter reddit posts and comments with complete thoughts and longer blog-style posts, it would be better to chunk these differently to help our program to ensure context within a chunk is best-fit.
 
-
 ---
 
 ## Retrieval Approach
@@ -70,6 +69,7 @@ all-MiniLM-L6-v2
 **Top-k:**
 4
 **Production tradeoff reflection:**
+Increasing the top-k can provide more context to the LLMs, as you provide more chunks for the LLMs at the cost of increasing the number of tokens used. The LLM we use allow for different context lengths, which helps inform how much of the "top-k" we can use or even increasing the chunk size to help better give context to LLM queries. Additionally, the type of LLM we use have other constraints, such as what written languages are supported (English, Spanish, Chinese, etc.). Providing more context could also bring more accurate content for domain-specific text.
 
 ---
 
@@ -81,12 +81,12 @@ all-MiniLM-L6-v2
      "What do students say about wait times at [dining hall name] during lunch?" is testable. -->
 
 | # | Question | Expected answer |
-|---|----------|-----------------|
-| 1 | | |
-| 2 | | |
-| 3 | | |
-| 4 | | |
-| 5 | | |
+|---|---------------------------------------------------------------|-----------------|
+| 1 | What are some cons of living on-campus for freshman students? | |
+| 2 | What are some pros of living on campus for students? | |
+| 3 | Can you list some of the available dorms on campus? | |
+| 4 | Can you list some off-campus apartment complexes? | |
+| 5 | What are some of the benefits of living at Murphree Hall? | |
 
 ---
 
@@ -96,9 +96,9 @@ all-MiniLM-L6-v2
      Consider: noisy or inconsistent documents, missing source attribution, off-topic
      retrieval, chunks that split key information across boundaries. -->
 
-1.
+1. Noisy data, a lot of the parsing and grabbing the data to fill the vector database contains nonsense data, such as shorter reddit comments (which are chunked individually), and non-content text on HTML pages.
 
-2.
+2. Not enough data. For example most of the data provided by our sources do not depict cons of individual dorms, and instead it focuses on positives.
 
 ---
 
@@ -109,6 +109,8 @@ all-MiniLM-L6-v2
      Label each stage with the tool or library you're using.
      You can use ASCII art, a Mermaid diagram, or embed a sketch as an image.
      You'll use this diagram as context when prompting AI tools to implement each stage. -->
+
+![alt text](image.png)
 
 ---
 
@@ -125,7 +127,10 @@ all-MiniLM-L6-v2
      with my specified chunk size and overlap" is a plan. -->
 
 **Milestone 3 — Ingestion and chunking:**
+I want to use ChatGPT and Google Gemini to help research how to gather data between Reddit posts and other web pages. I asked ChatGPT to additionally assist to help implement load and chunking functions. I expect the code to be able to print and organize the raw text. I'll verify through printing out what is printed out by the code.
 
 **Milestone 4 — Embedding and retrieval:**
+I want to use ChatGPT and Google Gemini to understand how this pipeline works, and how to incorporate ChromaDB and sentence transformers into my code. I'll ask ChatGPT how to set up both individually to help write and generate the vector database. I will verify the data by printing the output of the retrival (evaluate()) functions and determine if the chunks generated are relevant to the query. If not, I will go back to the ingestion step.
 
 **Milestone 5 — Generation and interface:**
+I will use ChatGPT and Google Gemini to help support connecting the previous functions created in earlier milestones to the provided code of the Gradle UI. To verify, I will be able to properly make queries through the Gradle UI and recieve a response from Groq.
