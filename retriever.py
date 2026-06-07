@@ -96,23 +96,45 @@ def print_results(query, k=4):
         print(doc)
         print("-" * 80)
 
-def evaluate():
-    evaluation_queries = [
-        "What are the most popular off-campus housing options for studnets?",
-        # "What are the cons of living off-campus student apartments?",
-        # "What are the disadvantages of living off campus as a freshman??"
-    ]
+def evaluate(question):
 
-    for query in evaluation_queries:
-        print_results(query, k=4)
+    results = retrieve(question, k=4)
 
-if __name__ == "__main__":
+    docs = results["documents"][0]
+    metas = results["metadatas"][0]
 
+    context_parts = []
+
+    for doc, meta in zip(docs, metas):
+        context_parts.append(
+            f"""
+Source: {meta['source']}
+
+{doc}
+"""
+        )
+
+    context = "\n\n".join(context_parts)
+
+    prompt = f"""
+    Question:
+        {question}
+    Context:
+        {context}
+
+
+"""
+    return prompt
+
+def load_vector_db():
     print("Loading chunks...")
     chunks = ingest.ingest()
 
     print(f"Loaded {len(chunks)} chunks.")
 
     build_vector_store(chunks)
+    return
 
-    evaluate()
+if __name__ == "__main__":
+    load_vector_db()
+    print(evaluate("What are the most popular off-campus housing options for students?"))
